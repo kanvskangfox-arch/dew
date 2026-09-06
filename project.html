@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เที่ยวเพชรบูรณ์ - Phetchabun Travel Guide (Galaxy Theme)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #0d0614; /* สีพื้นหลังอวกาศม่วงเข้ม */
+            color: #e2d9f3;
+            overflow-x: hidden;
+        }
+
+        /* --- Canvas พื้นหลังดาวกะพริบและเอฟเฟกต์กาแล็กซี่ --- */
+        #galaxyCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* --- Animated Galaxy Navbar --- */
+        .custom-galaxy-nav {
+            background: linear-gradient(-45deg, #130924, #2a0845, #4a00e0, #8e2de2, #180036);
+            background-size: 400% 400%;
+            animation: galaxyGradient 12s ease infinite;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+            box-shadow: 0 4px 25px rgba(138, 43, 226, 0.3);
+        }
+
+        @keyframes galaxyGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .custom-galaxy-nav .nav-link {
+            color: #d8b4fe !important;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+
+        .custom-galaxy-nav .nav-link:hover, 
+        .custom-galaxy-nav .nav-link.active {
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(192, 132, 252, 0.8);
+        }
+
+        .custom-galaxy-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 2px;
+            left: 50%;
+            background-color: #c084fc;
+            box-shadow: 0 0 8px #c084fc;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .custom-galaxy-nav .nav-link:hover::after,
+        .custom-galaxy-nav .nav-link.active::after {
+            width: 75%;
+        }
+
+        .brand-text {
+            background: linear-gradient(135deg, #e9d5ff, #c084fc, #a855f7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+        }
+
+        /* --- Hero Carousel --- */
+        .hero-carousel img {
+            height: 480px;
+            object-fit: cover;
+            filter: brightness(0.9) contract(1.05);
+        }
+
+        .carousel-caption {
+            background: rgba(19, 9, 36, 0.75) !important;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(192, 132, 252, 0.3);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+        }
+
+        /* --- Cards UI --- */
+        .galaxy-card {
+            background: rgba(23, 11, 41, 0.7) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(168, 85, 247, 0.25) !important;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .galaxy-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(192, 132, 252, 0.8) !important;
+            box-shadow: 0 15px 30px rgba(168, 85, 247, 0.4), 0 0 15px rgba(192, 132, 252, 0.3) !important;
+        }
+
+        .card-img-top {
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .text-purple-glow {
+            color: #d8b4fe;
+            text-shadow: 0 0 12px rgba(168, 85, 247, 0.6);
+        }
+
+        /* --- Buttons --- */
+        .btn-galaxy-outline {
+            color: #e9d5ff;
+            border: 1px solid #a855f7;
+            background: rgba(168, 85, 247, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .btn-galaxy-outline:hover {
+            background: linear-gradient(135deg, #a855f7, #7e22ce);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
+            border-color: #c084fc;
+        }
+
+        .btn-galaxy-primary {
+            background: linear-gradient(135deg, #8e2de2, #4a00e0);
+            border: none;
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(142, 45, 226, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-galaxy-primary:hover {
+            background: linear-gradient(135deg, #a855f7, #6b21a8);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+            color: #ffffff;
+        }
+
+        /* --- Floating Music Control Button --- */
+        .music-control-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 9999;
+            border-radius: 50px;
+            padding: 12px 22px;
+            background: linear-gradient(135deg, #7e22ce, #3b0764);
+            border: 1px solid rgba(192, 132, 252, 0.5);
+            color: #e9d5ff;
+            box-shadow: 0 4px 20px rgba(126, 34, 206, 0.5), 0 0 10px rgba(192, 132, 252, 0.3);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .music-control-btn:hover {
+            transform: scale(1.08);
+            color: #ffffff;
+            box-shadow: 0 6px 25px rgba(168, 85, 247, 0.8), 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .bg-galaxy-section {
+            background: rgba(15, 7, 28, 0.6);
+            backdrop-filter: blur(5px);
+            border-top: 1px solid rgba(168, 85, 247, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas สำหรับสร้างกาแล็กซี่และดาวเคลื่อนไหว -->
+    <canvas id="galaxyCanvas"></canvas>
+
+    <!-- Audio Player -->
+    <audio id="bgMusic" loop>
+        <source src="audio/Fieldddd MUIC ft.YUNGTARR Prod.By TPondabeat Official Visualizer.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Music Control Floating Button -->
+    <button id="musicToggleBtn" class="btn music-control-btn d-flex align-items-center gap-2">
+        <i id="musicIcon" class="bi bi-disc-fill fs-5"></i>
+        <span id="musicText">เปิดเพลงบรรยากาศ</span>
+    </button>
+
+    <!-- Modern Animated Galaxy Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-galaxy-nav sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2" href="#">
+                <i class="bi bi-stars text-warning"></i>
+                <span class="brand-text">เที่ยวเพชรบูรณ์</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="#home">หน้าแรก</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#places">สถานที่ท่องเที่ยว</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">ติดต่อเรา</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-carousel">
+        <div id="phetchabunCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="image/p2.png" class="d-block w-100" alt="เขาค้อ">
+                    <div class="carousel-caption d-none d-md-block rounded-4 p-4">
+                        <h4 class="fw-bold text-purple-glow">เขาค้อ สวิสเซอร์แลนด์เมืองไทย</h4>
+                        <p class="text-light mb-0">สัมผัสอากาศบริสุทธิ์ ชมทะเลหมอกและดวงดาวตระการตาตลอดปี</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Places Section -->
+    <section id="places" class="container my-5 py-4">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-purple-glow fs-1">🌌 สถานที่ท่องเที่ยวแนะนำ</h2>
+            <p class="text-secondary">ค้นพบความงดงามของดินแดนแห่งขุนเขาและดวงดาว</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Card 1 -->
+            <div class="col-md-4">
+                <div class="card h-100 galaxy-card shadow">
+                    <img src="https://lh3.googleusercontent.com/gps-cs-s/AHRPTWkOHHyFPikwxlepTfxgC4XA4DojGYEtsz6QjRKfWDb8jIVdPjTYDVzY_Tt82HtuoXcsrGLL8XkYmdtqTo-rf9FtmKtwDWTlZKBgH9WIne91e3IZah3_em41Bgxdtig0-oy1JiU=w426-h240-k-no" class="card-img-top" alt="วัดพระธาตุผาซ่อนแก้ว">
+                    <div class="card-body">
+                        <span class="badge bg-purple-subtle text-purple border border-purple mb-2" style="background: rgba(168, 85, 247, 0.2); color: #e9d5ff;">ศาสนสถาน / จุดชมวิว</span>
+                        <h5 class="card-title fw-bold text-light">วัดพระธาตุผาซ่อนแก้ว</h5>
+                        <p class="card-text text-secondary">วัดสวยบนยอดเขาสูง มองเห็นทิวทัศน์และทะเลหมอก 360 องศา</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-4">
+                        <a href="wat-phasornkaew.html" class="btn btn-galaxy-outline w-100 rounded-pill">ดูรายละเอียด</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="col-md-4">
+                <div class="card h-100 galaxy-card shadow">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTplkCsVYQnvMMuJXgj1tczNWdlOBgxOkRcQVyDcTVmcg&s=10" class="card-img-top" alt="อุทยานแห่งชาติน้ำหนาว">
+                    <div class="card-body">
+                        <span class="badge mb-2" style="background: rgba(217, 70, 239, 0.2); color: #f5d0fe; border: 1px solid #d946ef;">ธรรมชาติ / เดินป่า</span>
+                        <h5 class="card-title fw-bold text-light">อุทยานแห่งชาติน้ำหนาว</h5>
+                        <p class="card-text text-secondary">สัมผัสผืนป่าสมบูรณ์ อากาศหนาวเย็นตลอดปี และจุดชมดาวที่ใสกระจ่าง</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-4">
+                        <a href="namnao.html" class="btn btn-galaxy-outline w-100 rounded-pill">ดูรายละเอียด</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="col-md-4">
+                <div class="card h-100 galaxy-card shadow">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKucUw6CgFBMSSbWayHIxcFx9BkyhZrDZhukm3TZp3BA&s=10" class="card-img-top" alt="ภูทับเบิก">
+                    <div class="card-body">
+                        <span class="badge mb-2" style="background: rgba(129, 140, 248, 0.2); color: #c7d2fe; border: 1px solid #818cf8;">จุดชมวิว / ทะเลหมอก</span>
+                        <h5 class="card-title fw-bold text-light">ภูทับเบิก</h5>
+                        <p class="card-text text-secondary">ยอดเขาที่สูงที่สุดในจังหวัดเพชรบูรณ์ ชมไร่กะหล่ำปลีและทะเลหมอกสุดอลังการ</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-4">
+                        <a href="phutubberk.html" class="btn btn-galaxy-outline w-100 rounded-pill">ดูรายละเอียด</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="bg-galaxy-section py-5">
+        <div class="container">
+            <div class="row justify-content-center text-center">
+                <div class="col-md-6">
+                    <h3 class="fw-bold text-purple-glow mb-3">ช่องทางการติดต่อ</h3>
+                    <p class="text-secondary mb-4">คลิกปุ่มด้านล่างเพื่อเชื่อมต่อไปยังแพลตฟอร์มต่างๆ ของเรา</p>
+                    
+                    <div class="d-grid gap-3">
+                        <a href="https://www.facebook.com/dewsosik.akira" target="_blank" class="btn btn-galaxy-primary btn-lg rounded-pill shadow">
+                            <i class="bi bi-facebook me-2"></i>Facebook
+                        </a>
+                        <a href="https://maps.app.goo.gl/Y7uLKXFfMdFZwFnw9" target="_blank" class="btn btn-galaxy-outline btn-lg rounded-pill">
+                            📍 แผนที่เดินทาง (Google Maps)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+        
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script ควบคุมเพลง -->
+    <script>
+        const bgMusic = document.getElementById('bgMusic');
+        const musicToggleBtn = document.getElementById('musicToggleBtn');
+        const musicIcon = document.getElementById('musicIcon');
+        const musicText = document.getElementById('musicText');
+
+        bgMusic.volume = 0.3;
+        let isPlaying = false;
+
+        musicToggleBtn.addEventListener('click', function() {
+            if (isPlaying) {
+                bgMusic.pause();
+                musicIcon.className = 'bi bi-disc-fill fs-5';
+                musicText.innerText = 'เปิดเพลงบรรยากาศ';
+                musicToggleBtn.style.background = 'linear-gradient(135deg, #7e22ce, #3b0764)';
+            } else {
+                bgMusic.play();
+                musicIcon.className = 'bi bi-pause-circle-fill fs-5';
+                musicText.innerText = 'ปิดเพลงบรรยากาศ';
+                musicToggleBtn.style.background = 'linear-gradient(135deg, #e11d48, #881337)'; // สลับเป็นโทนสีแดงเมื่อกดปิด
+            }
+            isPlaying = !isPlaying;
+        });
+    </script>
+
+    <!-- Script สำหรับกาแล็กซี่ ละอองดาวเคลื่อนไหว -->
+    <script>
+        const canvas = document.getElementById('galaxyCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        // สร้างดวงดาวแบบกาแล็กซี่
+        const starCount = 120;
+        const stars = [];
+        const colors = ['#ffffff', '#e9d5ff', '#c084fc', '#a855f7', '#818cf8'];
+
+        for (let i = 0; i < starCount; i++) {
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 2 + 0.5,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                speedY: Math.random() * 0.4 + 0.1, // ค่อยๆ ลอยลงเบาๆ
+                speedX: Math.random() * 0.2 - 0.1,
+                opacity: Math.random() * 0.8 + 0.2,
+                pulseSpeed: Math.random() * 0.02 + 0.005
+            });
+        }
+
+        function drawGalaxy() {
+            ctx.clearRect(0, 0, width, height);
+
+            // วาดกลุ่มหมอกกาแล็กซี่ฟุ้งๆ ด้านหลัง
+            const gradient1 = ctx.createRadialGradient(width * 0.2, height * 0.3, 50, width * 0.2, height * 0.3, 400);
+            gradient1.addColorStop(0, 'rgba(142, 45, 226, 0.15)');
+            gradient1.addColorStop(1, 'transparent');
+            ctx.fillStyle = gradient1;
+            ctx.fillRect(0, 0, width, height);
+
+            const gradient2 = ctx.createRadialGradient(width * 0.8, height * 0.7, 50, width * 0.8, height * 0.7, 500);
+            gradient2.addColorStop(0, 'rgba(74, 0, 224, 0.12)');
+            gradient2.addColorStop(1, 'transparent');
+            ctx.fillStyle = gradient2;
+            ctx.fillRect(0, 0, width, height);
+
+            // วาดดวงดาว
+            stars.forEach(s => {
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                ctx.fillStyle = s.color;
+                ctx.globalAlpha = s.opacity;
+                ctx.shadowBlur = s.radius * 4;
+                ctx.shadowColor = s.color;
+                ctx.fill();
+
+                // เอฟเฟกต์ดาวกะพริบ
+                s.opacity += Math.sin(Date.now() * s.pulseSpeed) * 0.01;
+                if (s.opacity < 0.2) s.opacity = 0.2;
+                if (s.opacity > 0.9) s.opacity = 0.9;
+
+                // การเคลื่อนที่
+                s.y += s.speedY;
+                s.x += s.speedX;
+
+                if (s.y > height) {
+                    s.y = -5;
+                    s.x = Math.random() * width;
+                }
+                if (s.x > width) s.x = 0;
+                if (s.x < 0) s.x = width;
+            });
+
+            ctx.globalAlpha = 1.0;
+            requestAnimationFrame(drawGalaxy);
+        }
+
+        drawGalaxy();
+    </script>
+</body>
+</html>
