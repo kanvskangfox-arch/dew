@@ -181,6 +181,35 @@
             backdrop-filter: blur(5px);
             border-top: 1px solid rgba(168, 85, 247, 0.2);
         }
+        /* --- แก้ไขบัคเส้นใต้เมนูบนหน้าจอมือถือ --- */
+@media (max-width: 991.98px) {
+    .custom-galaxy-nav .navbar-collapse {
+        background: rgba(19, 9, 36, 0.95);
+        backdrop-filter: blur(15px);
+        border-radius: 16px;
+        padding: 15px;
+        margin-top: 10px;
+        border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .custom-galaxy-nav .nav-link {
+        text-align: center;
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+    }
+
+    .custom-galaxy-nav .nav-link::after {
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        transform: none;
+    }
+
+    .custom-galaxy-nav .nav-link:hover::after,
+    .custom-galaxy-nav .nav-link.active::after {
+        width: 40%; /* ปรับขนาดความกว้างเส้นใต้บนมือถือให้พอดีตัวอักษร */
+    }
+}
     </style>
 </head>
 <body>
