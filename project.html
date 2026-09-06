@@ -368,84 +368,205 @@
     </script>
 
     <!-- Script สำหรับกาแล็กซี่ ละอองดาวเคลื่อนไหว -->
-    <script>
-        const canvas = document.getElementById('galaxyCanvas');
-        const ctx = canvas.getContext('2d');
+    <!-- Script สำหรับกาแล็กซี่ ละอองดาว ดาวเคราะห์ และอุกกาบาต -->
+<script>
+    const canvas = document.getElementById('galaxyCanvas');
+    const ctx = canvas.getContext('2d');
 
-        let width = canvas.width = window.innerWidth;
-        let height = canvas.height = window.innerHeight;
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
 
-        window.addEventListener('resize', () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+    window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    });
+
+    // --- 1. ดวงดาวกะพริบ ---
+    const starCount = 120;
+    const stars = [];
+    const colors = ['#ffffff', '#e9d5ff', '#c084fc', '#a855f7', '#818cf8'];
+
+    for (let i = 0; i < starCount; i++) {
+        stars.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: Math.random() * 2 + 0.5,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            speedY: Math.random() * 0.4 + 0.1,
+            speedX: Math.random() * 0.2 - 0.1,
+            opacity: Math.random() * 0.8 + 0.2,
+            pulseSpeed: Math.random() * 0.02 + 0.005
+        });
+    }
+
+    // --- 2. ดาวเคราะห์ (Planets) ---
+    const planets = [
+        {
+            x: width * 0.1,
+            y: height * 0.25,
+            radius: 28,
+            color1: '#a855f7',
+            color2: '#3b0764',
+            ring: true,
+            ringColor: 'rgba(192, 132, 252, 0.6)',
+            speedY: 0.15,
+            speedX: 0.08,
+            angle: 0.4
+        },
+        {
+            x: width * 0.85,
+            y: height * 0.65,
+            radius: 42,
+            color1: '#06b6d4',
+            color2: '#1e1b4b',
+            ring: true,
+            ringColor: 'rgba(56, 189, 248, 0.5)',
+            speedY: -0.1,
+            speedX: -0.05,
+            angle: -0.3
+        }
+    ];
+
+    // --- 3. อุกกาบาตลอย / ดาวตก (Meteors) ---
+    const meteors = [];
+    const meteorCount = 4;
+
+    function createMeteor() {
+        return {
+            x: Math.random() * width * 1.2 - width * 0.1,
+            y: -50,
+            length: Math.random() * 80 + 50,
+            speedX: Math.random() * 3 + 2,
+            speedY: Math.random() * 4 + 3,
+            size: Math.random() * 2.5 + 1.5,
+            color: '#f43f5e'
+        };
+    }
+
+    for (let i = 0; i < meteorCount; i++) {
+        const m = createMeteor();
+        m.y = Math.random() * height; // กระจายตำแหน่งเริ่มต้น
+        meteors.push(m);
+    }
+
+    // --- ฟังก์ชันวาดวาดวัตถุอวกาศทั้งหมด ---
+    function drawGalaxy() {
+        ctx.clearRect(0, 0, width, height);
+
+        // 1. วาดหมอกกาแล็กซี่
+        const gradient1 = ctx.createRadialGradient(width * 0.2, height * 0.3, 50, width * 0.2, height * 0.3, 400);
+        gradient1.addColorStop(0, 'rgba(142, 45, 226, 0.15)');
+        gradient1.addColorStop(1, 'transparent');
+        ctx.fillStyle = gradient1;
+        ctx.fillRect(0, 0, width, height);
+
+        const gradient2 = ctx.createRadialGradient(width * 0.8, height * 0.7, 50, width * 0.8, height * 0.7, 500);
+        gradient2.addColorStop(0, 'rgba(74, 0, 224, 0.12)');
+        gradient2.addColorStop(1, 'transparent');
+        ctx.fillStyle = gradient2;
+        ctx.fillRect(0, 0, width, height);
+
+        // 2. วาดและคำนวณดวงดาว
+        stars.forEach(s => {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+            ctx.fillStyle = s.color;
+            ctx.globalAlpha = s.opacity;
+            ctx.shadowBlur = s.radius * 4;
+            ctx.shadowColor = s.color;
+            ctx.fill();
+
+            s.opacity += Math.sin(Date.now() * s.pulseSpeed) * 0.01;
+            if (s.opacity < 0.2) s.opacity = 0.2;
+            if (s.opacity > 0.9) s.opacity = 0.9;
+
+            s.y += s.speedY;
+            s.x += s.speedX;
+
+            if (s.y > height) { s.y = -5; s.x = Math.random() * width; }
+            if (s.x > width) s.x = 0;
+            if (s.x < 0) s.x = width;
+        });
+        ctx.globalAlpha = 1.0;
+
+        // 3. วาดดาวเคราะห์พร้อมวงแหวน
+        planets.forEach(p => {
+            p.x += p.speedX;
+            p.y += p.speedY;
+
+            // รีเซ็ตตำแหน่งเมื่อลอยพ้นจอ
+            if (p.y > height + 100) p.y = -100;
+            if (p.y < -100) p.y = height + 100;
+            if (p.x > width + 100) p.x = -100;
+            if (p.x < -100) p.x = width + 100;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.angle);
+
+            // ตัวดาวเคราะห์
+            const pGrad = ctx.createRadialGradient(-p.radius*0.3, -p.radius*0.3, p.radius*0.1, 0, 0, p.radius);
+            pGrad.addColorStop(0, p.color1);
+            pGrad.addColorStop(1, p.color2);
+            
+            ctx.beginPath();
+            ctx.arc(0, 0, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = pGrad;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = p.color1;
+            ctx.fill();
+
+            // วงแหวนดาวเคราะห์
+            if (p.ring) {
+                ctx.beginPath();
+                ctx.ellipse(0, 0, p.radius * 1.8, p.radius * 0.4, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = p.ringColor;
+                ctx.lineWidth = 4;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = p.ringColor;
+                ctx.stroke();
+            }
+
+            ctx.restore();
         });
 
-        // สร้างดวงดาวแบบกาแล็กซี่
-        const starCount = 120;
-        const stars = [];
-        const colors = ['#ffffff', '#e9d5ff', '#c084fc', '#a855f7', '#818cf8'];
+        // 4. วาดอุกกาบาตลอยเฉียงพร้อมหางไฟ
+        meteors.forEach((m, index) => {
+            m.x += m.speedX;
+            m.y += m.speedY;
 
-        for (let i = 0; i < starCount; i++) {
-            stars.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                radius: Math.random() * 2 + 0.5,
-                color: colors[Math.floor(Math.random() * colors.length)],
-                speedY: Math.random() * 0.4 + 0.1, // ค่อยๆ ลอยลงเบาๆ
-                speedX: Math.random() * 0.2 - 0.1,
-                opacity: Math.random() * 0.8 + 0.2,
-                pulseSpeed: Math.random() * 0.02 + 0.005
-            });
-        }
+            // วาดหางลาก
+            const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.length * (m.speedX/5), m.y - m.length * (m.speedY/5));
+            grad.addColorStop(0, 'rgba(244, 63, 94, 0.8)');
+            grad.addColorStop(0.5, 'rgba(168, 85, 247, 0.4)');
+            grad.addColorStop(1, 'transparent');
 
-        function drawGalaxy() {
-            ctx.clearRect(0, 0, width, height);
+            ctx.beginPath();
+            ctx.moveTo(m.x, m.y);
+            ctx.lineTo(m.x - m.length * (m.speedX/5), m.y - m.length * (m.speedY/5));
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = m.size;
+            ctx.lineCap = 'round';
+            ctx.stroke();
 
-            // วาดกลุ่มหมอกกาแล็กซี่ฟุ้งๆ ด้านหลัง
-            const gradient1 = ctx.createRadialGradient(width * 0.2, height * 0.3, 50, width * 0.2, height * 0.3, 400);
-            gradient1.addColorStop(0, 'rgba(142, 45, 226, 0.15)');
-            gradient1.addColorStop(1, 'transparent');
-            ctx.fillStyle = gradient1;
-            ctx.fillRect(0, 0, width, height);
+            // หัวอุกกาบาต
+            ctx.beginPath();
+            ctx.arc(m.x, m.y, m.size, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#f43f5e';
+            ctx.fill();
 
-            const gradient2 = ctx.createRadialGradient(width * 0.8, height * 0.7, 50, width * 0.8, height * 0.7, 500);
-            gradient2.addColorStop(0, 'rgba(74, 0, 224, 0.12)');
-            gradient2.addColorStop(1, 'transparent');
-            ctx.fillStyle = gradient2;
-            ctx.fillRect(0, 0, width, height);
+            // เมื่อตกพ้นขอบจอ ให้สร้างชิ้นใหม่กลับมาด้านบน
+            if (m.y > height + 100 || m.x > width + 100) {
+                meteors[index] = createMeteor();
+            }
+        });
 
-            // วาดดวงดาว
-            stars.forEach(s => {
-                ctx.beginPath();
-                ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-                ctx.fillStyle = s.color;
-                ctx.globalAlpha = s.opacity;
-                ctx.shadowBlur = s.radius * 4;
-                ctx.shadowColor = s.color;
-                ctx.fill();
+        requestAnimationFrame(drawGalaxy);
+    }
 
-                // เอฟเฟกต์ดาวกะพริบ
-                s.opacity += Math.sin(Date.now() * s.pulseSpeed) * 0.01;
-                if (s.opacity < 0.2) s.opacity = 0.2;
-                if (s.opacity > 0.9) s.opacity = 0.9;
-
-                // การเคลื่อนที่
-                s.y += s.speedY;
-                s.x += s.speedX;
-
-                if (s.y > height) {
-                    s.y = -5;
-                    s.x = Math.random() * width;
-                }
-                if (s.x > width) s.x = 0;
-                if (s.x < 0) s.x = width;
-            });
-
-            ctx.globalAlpha = 1.0;
-            requestAnimationFrame(drawGalaxy);
-        }
-
-        drawGalaxy();
-    </script>
+    drawGalaxy();
+</script>
 </body>
 </html>
